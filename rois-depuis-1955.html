@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Les Rois depuis 1955 — Les Fines Gâchettes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux:    #7a1020;
+      --bordeaux-dk: #4e0a15;
+      --gold:        #c9a84c;
+      --gold-lt:     #e8d49a;
+      --cream:       #faf6ef;
+      --text:        #1a0a0e;
+    }
+
+    body {
+      background: var(--cream);
+      font-family: 'Crimson Text', Georgia, serif;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bordeaux-dk);
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 18px,
+        rgba(201,168,76,.07) 18px,
+        rgba(201,168,76,.07) 19px
+      );
+    }
+    .header-inner { position: relative; z-index: 1; }
+
+    .crown { font-size: 2.2rem; margin-bottom: .4rem; }
+
+    header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+    header p {
+      color: var(--gold-lt);
+      font-style: italic;
+      font-size: 1.05rem;
+      margin-top: .5rem;
+      opacity: .85;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      justify-content: center;
+      margin: .9rem 0 0;
+    }
+    .divider span { height: 1px; width: 60px; background: var(--gold); opacity: .5; }
+    .divider i { color: var(--gold); font-size: .8rem; opacity: .7; }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    /* ── LOADING / ERROR ── */
+    #status {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--bordeaux);
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--gold-lt);
+      border-top-color: var(--bordeaux);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin-bottom: .7rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── TABLE WRAPPER ── */
+    .table-wrap {
+      display: none;
+    }
+
+    /* ── LEGEND ── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem 1.4rem;
+      margin-bottom: 1.4rem;
+      font-size: .93rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px; height: 22px;
+      border-radius: 4px;
+      font-size: .7rem;
+      font-weight: 600;
+      font-family: 'Cinzel', serif;
+    }
+    .badge-roi    { background: var(--bordeaux); color: var(--gold); }
+    .badge-vice   { background: #5a5a5a; color: #fff; }
+    .badge-venoge { background: #1a5276; color: #aed6f1; }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #fff;
+      border: 1.5px solid var(--gold);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(122,16,32,.10);
+    }
+
+    thead tr {
+      background: var(--bordeaux);
+    }
+    thead th {
+      font-family: 'Cinzel', serif;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .9rem 1rem;
+      text-align: left;
+      border-bottom: 2px solid var(--gold);
+      white-space: nowrap;
+    }
+    thead th:first-child { text-align: center; width: 72px; }
+
+    tbody tr {
+      transition: background .15s;
+      border-bottom: 1px solid rgba(201,168,76,.15);
+      animation: fadeRow .4s ease both;
+    }
+    @keyframes fadeRow {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(201,168,76,.07); }
+
+    tbody td {
+      padding: .75rem 1rem;
+      font-size: 1rem;
+      vertical-align: middle;
+      color: var(--text);
+    }
+
+    /* année */
+    td.year {
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--bordeaux);
+      background: rgba(122,16,32,.04);
+      border-right: 2px solid rgba(201,168,76,.2);
+    }
+
+    /* nom + score */
+    .name  { display: block; font-weight: 600; }
+    .score {
+      display: inline-block;
+      margin-top: .18rem;
+      font-size: .82rem;
+      font-style: italic;
+      color: #888;
+    }
+
+    /* icônes colonnes */
+    .col-roi    .name { color: var(--bordeaux); }
+    .col-vice   .name { color: #444; }
+    .col-venoge .name { color: #1a5276; }
+
+    /* ── FOOTER ── */
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-top: 1.2rem;
+      font-size: .85rem;
+      color: #999;
+      font-style: italic;
+    }
+    .table-footer a {
+      color: var(--bordeaux);
+      text-decoration: none;
+      font-style: normal;
+      font-weight: 600;
+    }
+    .table-footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      thead th, tbody td { padding: .6rem .65rem; font-size: .88rem; }
+      .score { font-size: .76rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="crown">🏆</div>
+    <h1>Les Rois depuis 1955</h1>
+    <p>Les Fines Gâchettes — Abbaye des Fusiliers de Denges</p>
+    <div class="divider">
+      <span></span>
+      <i>✦</i>
+      <span></span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="status">
+    <div class="spinner"></div><br/>
+    Chargement du palmarès…
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <div class="legend">
+      <div class="legend-item">
+        <span class="badge badge-roi">R</span> Roi Société
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-vice">VR</span> Vice-Roi Société
+      </div>
+      <div class="legend-item">
+        <span class="badge badge-venoge">V</span> Roi Venoge
+      </div>
+    </div>
+
+    <table id="roisTable">
+      <thead>
+        <tr>
+          <th>Fête</th>
+          <th><span class="badge badge-roi" style="margin-right:.4rem">R</span> Roi Société</th>
+          <th><span class="badge badge-vice" style="margin-right:.4rem">VR</span> Vice-Roi Société</th>
+          <th><span class="badge badge-venoge" style="margin-right:.4rem">V</span> Roi Venoge</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div class="table-footer">
+      <span id="lastUpdate"></span>
+      <a href="https://docs.google.com/spreadsheets/d/1nWiyU08h_eG5zAC2515ePoAskOBoEoY28I6cdiUN9o4" target="_blank">
+        📊 Voir la source Google Sheets
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+  const SHEET_ID  = '1nWiyU08h_eG5zAC2515ePoAskOBoEoY28I6cdiUN9o4';
+  const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    return lines.slice(1).map(line => {
+      const cols = [];
+      let cur = '', inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+        else cur += c;
+      }
+      cols.push(cur.trim());
+      return cols;
+    });
+  }
+
+  function splitNameScore(cell) {
+    // Split "Prénom Nom, 454pts" → name + score
+    const m = cell.match(/^(.+?),\s*(\d.*)/);
+    if (m) return { name: m[1].trim(), score: m[2].trim() };
+    return { name: cell, score: '' };
+  }
+
+  function buildRow(cols, delay) {
+    const [year, roi, vice, venoge] = cols;
+    const r  = splitNameScore(roi    || '');
+    const vr = splitNameScore(vice   || '');
+    const v  = splitNameScore(venoge || '');
+
+    const tr = document.createElement('tr');
+    tr.style.animationDelay = `${delay}ms`;
+    tr.innerHTML = `
+      <td class="year">${year}</td>
+      <td class="col-roi">
+        <span class="name">${r.name}</span>
+        ${r.score ? `<span class="score">${r.score}</span>` : ''}
+      </td>
+      <td class="col-vice">
+        <span class="name">${vr.name}</span>
+        ${vr.score ? `<span class="score">${vr.score}</span>` : ''}
+      </td>
+      <td class="col-venoge">
+        <span class="name">${v.name}</span>
+        ${v.score ? `<span class="score">${v.score}</span>` : ''}
+      </td>`;
+    return tr;
+  }
+
+  async function loadData() {
+    try {
+      const res  = await fetch(CSV_URL);
+      if (!res.ok) throw new Error('Erreur réseau');
+      const text = await res.text();
+      const rows = parseCSV(text);
+
+      const tbody = document.getElementById('tbody');
+      rows.forEach((cols, i) => tbody.appendChild(buildRow(cols, i * 40)));
+
+      document.getElementById('lastUpdate').textContent =
+        `Mis à jour le ${new Date().toLocaleDateString('fr-CH', {day:'numeric', month:'long', year:'numeric'})}`;
+
+      document.getElementById('status').style.display   = 'none';
+      document.getElementById('tableWrap').style.display = 'block';
+    } catch (e) {
+      document.getElementById('status').innerHTML =
+        `<p style="color:var(--bordeaux)">⚠️ Impossible de charger le palmarès.<br/><small>${e.message}</small></p>`;
+    }
+  }
+
+  loadData();
+</script>
+</body>
+</html>
