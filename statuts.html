@@ -20,7 +20,6 @@
       flex-direction: column;
       align-items: center;
       padding: 1rem;
-      padding-bottom: 70px;
       gap: 1rem;
     }
     .controls-top {
@@ -34,10 +33,6 @@
       border: 1px solid rgba(201,168,76,.3);
     }
     .controls-bottom {
-      position: fixed;
-      bottom: 1rem;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: .8rem;
@@ -46,7 +41,6 @@
       border-radius: 40px;
       box-shadow: 0 3px 20px rgba(122,16,32,.35);
       border: 1px solid rgba(201,168,76,.3);
-      z-index: 100;
     }
     .btn {
       background: none;
@@ -138,6 +132,7 @@
 </head>
 <body>
 
+  <!-- BARRE HAUTE -->
   <div class="controls-top" id="controls-top">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
@@ -146,6 +141,7 @@
     <button class="btn" data-action="last">»</button>
   </div>
 
+  <!-- VISIONNEUR -->
   <div class="viewer" id="viewer">
     <div class="loading" id="loading">
       <div class="spinner"></div>
@@ -154,10 +150,7 @@
     <canvas id="pdfCanvas"></canvas>
   </div>
 
-  <div class="thumbnails" id="thumbnails"></div>
-
-  <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
-
+  <!-- BARRE BASSE -->
   <div class="controls-bottom" id="controls-bottom">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
@@ -165,6 +158,11 @@
     <button class="btn" data-action="next">›</button>
     <button class="btn" data-action="last">»</button>
   </div>
+
+  <!-- MINIATURES -->
+  <div class="thumbnails" id="thumbnails"></div>
+
+  <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
 
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =
