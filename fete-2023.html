@@ -20,8 +20,6 @@
       color: var(--text);
       padding: 1rem;
     }
-
-    /* ── LAYOUT PRINCIPAL ── */
     .main-layout {
       display: flex;
       flex-direction: column;
@@ -29,18 +27,11 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-
-    /* Sur PC : côte à côte */
     @media (min-width: 768px) {
-      .main-layout {
-        flex-direction: row;
-        align-items: flex-start;
-      }
+      .main-layout { flex-direction: row; align-items: flex-start; }
       .col-left  { flex: 1; min-width: 0; }
       .col-right { flex: 1; min-width: 0; }
     }
-
-    /* ── DIAPORAMA ── */
     .slideshow {
       width: 100%;
       position: relative;
@@ -117,8 +108,6 @@
       flex-shrink: 0;
     }
     .slide-pause:hover { background: rgba(201,168,76,.3); }
-
-    /* ── TITRE COLONNE ── */
     .col-title {
       font-family: 'Cinzel', serif;
       font-size: .72rem;
@@ -133,8 +122,6 @@
       margin-bottom: .8rem;
       display: block;
     }
-
-    /* ── PDF ── */
     .pdf-section {
       display: flex;
       flex-direction: column;
@@ -219,7 +206,6 @@
 
   <div class="main-layout">
 
-    <!-- COLONNE GAUCHE : DIAPORAMA -->
     <div class="col-left">
       <span class="col-title">✦ Album photos ✦</span>
       <div class="slideshow" id="slideshow">
@@ -232,17 +218,9 @@
       </div>
     </div>
 
-    <!-- COLONNE DROITE : COMPTE-RENDU -->
     <div class="col-right">
       <span class="col-title">✦ Compte-rendu de la fête ✦</span>
       <div class="pdf-section">
-        <div class="controls" id="ctrl-top">
-          <button class="btn" data-a="first">«</button>
-          <button class="btn" data-a="prev">‹</button>
-          <span class="page-info" id="pInfo-top">Page 1 / —</span>
-          <button class="btn" data-a="next">›</button>
-          <button class="btn" data-a="last">»</button>
-        </div>
         <div class="viewer" id="viewer">
           <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -264,9 +242,6 @@
   </div>
 
 <script>
-  // ═══════════════════════════════
-  // DIAPORAMA
-  // ═══════════════════════════════
   const PHOTOS = [
     'photos-2023/20230809_093735.jpg',
     'photos-2023/20230813_120039.jpg',
@@ -295,23 +270,15 @@
   ];
 
   const shuffled = [...PHOTOS].sort(() => Math.random() - 0.5);
-  const ss   = document.getElementById('slideshow');
+  const ss     = document.getElementById('slideshow');
   const dotsEl = document.getElementById('dots');
   let validPhotos = [], cur = 0, timer = null, paused = false;
 
-  // Charge uniquement les photos qui existent
   let loaded = 0;
   shuffled.forEach(src => {
     const img = new Image();
-    img.onload = () => {
-      validPhotos.push(src);
-      loaded++;
-      if (loaded === shuffled.length) buildSlideshow();
-    };
-    img.onerror = () => {
-      loaded++;
-      if (loaded === shuffled.length) buildSlideshow();
-    };
+    img.onload  = () => { validPhotos.push(src); loaded++; if (loaded === shuffled.length) buildSlideshow(); };
+    img.onerror = () => {                         loaded++; if (loaded === shuffled.length) buildSlideshow(); };
     img.src = src;
   });
 
@@ -322,7 +289,6 @@
       img.alt = `Fête 2023 — photo ${i+1}`;
       if (i === 0) img.classList.add('active');
       ss.insertBefore(img, ss.querySelector('.slide-controls'));
-
       const dot = document.createElement('div');
       dot.className = 'dot' + (i === 0 ? ' active' : '');
       dot.onclick = () => goSlide(i);
@@ -355,9 +321,6 @@
     paused ? clearInterval(timer) : startTimer();
   };
 
-  // ═══════════════════════════════
-  // PDF
-  // ═══════════════════════════════
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -369,9 +332,7 @@
 
   function updatePdfUI() {
     const total = pdfDoc.numPages;
-    ['top','bot'].forEach(id => {
-      document.getElementById(`pInfo-${id}`).textContent = `Page ${curPage} / ${total}`;
-    });
+    document.getElementById('pInfo-bot').textContent = `Page ${curPage} / ${total}`;
     document.querySelectorAll('[data-a="first"],[data-a="prev"]')
       .forEach(b => b.disabled = curPage <= 1);
     document.querySelectorAll('[data-a="last"],[data-a="next"]')
@@ -395,16 +356,14 @@
     renderPage(curPage);
   }
 
-  ['ctrl-top','ctrl-bot'].forEach(id => {
-    document.getElementById(id).addEventListener('click', e => {
-      const btn = e.target.closest('.btn');
-      if (!btn) return;
-      const a = btn.dataset.a;
-      if (a === 'first') goPage(1);
-      if (a === 'prev')  goPage(curPage - 1);
-      if (a === 'next')  goPage(curPage + 1);
-      if (a === 'last')  goPage(pdfDoc.numPages);
-    });
+  document.getElementById('ctrl-bot').addEventListener('click', e => {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+    const a = btn.dataset.a;
+    if (a === 'first') goPage(1);
+    if (a === 'prev')  goPage(curPage - 1);
+    if (a === 'next')  goPage(curPage + 1);
+    if (a === 'last')  goPage(pdfDoc.numPages);
   });
 
   function updateThumbs() {
