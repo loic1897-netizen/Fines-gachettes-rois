@@ -9,24 +9,40 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bordeaux:    #7a1020;
-      --gold:        #c9a84c;
-      --gold-lt:     #e8d49a;
-      --text:        #1a0a0e;
+      --bordeaux: #7a1020;
+      --gold:     #c9a84c;
+      --gold-lt:  #e8d49a;
+      --text:     #1a0a0e;
     }
     body {
       background: transparent;
       font-family: 'Crimson Text', Georgia, serif;
       color: var(--text);
       padding: 1rem;
+    }
+
+    /* ── LAYOUT PRINCIPAL ── */
+    .main-layout {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 2rem;
+      gap: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
+
+    /* Sur PC : côte à côte */
+    @media (min-width: 768px) {
+      .main-layout {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .col-left  { flex: 1; min-width: 0; }
+      .col-right { flex: 1; min-width: 0; }
+    }
+
+    /* ── DIAPORAMA ── */
     .slideshow {
       width: 100%;
-      max-width: 860px;
       position: relative;
       border-radius: 12px;
       overflow: hidden;
@@ -40,6 +56,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center center;
       opacity: 0;
       transition: opacity .9s ease;
     }
@@ -51,60 +68,58 @@
       align-items: center;
       justify-content: space-between;
       padding: .6rem .8rem;
-      background: linear-gradient(transparent, rgba(0,0,0,.55));
+      background: linear-gradient(transparent, rgba(0,0,0,.6));
       z-index: 10;
     }
     .slide-btn {
       background: rgba(255,255,255,.15);
       border: 1px solid rgba(201,168,76,.5);
       color: var(--gold-lt);
-      width: 34px; height: 34px;
+      width: 32px; height: 32px;
       border-radius: 50%;
       font-size: 1.1rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s;
       backdrop-filter: blur(4px);
+      flex-shrink: 0;
     }
     .slide-btn:hover { background: rgba(201,168,76,.3); }
     .slide-dots {
       display: flex;
-      gap: .35rem;
+      gap: .3rem;
       flex-wrap: wrap;
       justify-content: center;
-      max-width: 60%;
+      flex: 1;
+      padding: 0 .5rem;
     }
     .dot {
-      width: 7px; height: 7px;
+      width: 6px; height: 6px;
       border-radius: 50%;
       background: rgba(255,255,255,.4);
       cursor: pointer;
       transition: background .2s, transform .2s;
+      flex-shrink: 0;
     }
     .dot.active { background: var(--gold); transform: scale(1.3); }
     .slide-pause {
       background: rgba(255,255,255,.15);
       border: 1px solid rgba(201,168,76,.5);
       color: var(--gold-lt);
-      font-size: .75rem;
-      padding: .3rem .7rem;
+      font-size: .7rem;
+      padding: .25rem .6rem;
       border-radius: 20px;
       cursor: pointer;
       font-family: 'Cinzel', serif;
       letter-spacing: .05em;
       backdrop-filter: blur(4px);
-      transition: background .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .slide-pause:hover { background: rgba(201,168,76,.3); }
-    .separator {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      width: 100%;
-      max-width: 860px;
-    }
-    .sep-line { flex:1; height:1px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
-    .sep-label {
+
+    /* ── TITRE COLONNE ── */
+    .col-title {
       font-family: 'Cinzel', serif;
       font-size: .72rem;
       color: var(--gold);
@@ -114,22 +129,24 @@
       border: 1px solid var(--gold);
       border-radius: 20px;
       background: rgba(201,168,76,.06);
-      white-space: nowrap;
+      text-align: center;
+      margin-bottom: .8rem;
+      display: block;
     }
+
+    /* ── PDF ── */
     .pdf-section {
-      width: 100%;
-      max-width: 860px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: .8rem;
+      gap: .7rem;
     }
     .controls {
       display: flex;
       align-items: center;
-      gap: .8rem;
+      gap: .7rem;
       background: var(--bordeaux);
-      padding: .55rem 1.2rem;
+      padding: .5rem 1rem;
       border-radius: 40px;
       box-shadow: 0 3px 14px rgba(122,16,32,.25);
       border: 1px solid rgba(201,168,76,.3);
@@ -138,21 +155,22 @@
       background: none;
       border: 1.5px solid var(--gold);
       color: var(--gold);
-      width: 34px; height: 34px;
+      width: 30px; height: 30px;
       border-radius: 50%;
-      font-size: 1rem;
+      font-size: .95rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: background .15s, color .15s;
+      flex-shrink: 0;
     }
     .btn:hover:not(:disabled) { background: var(--gold); color: var(--bordeaux); }
     .btn:disabled { opacity: .3; cursor: default; }
     .page-info {
       font-family: 'Cinzel', serif;
-      font-size: .8rem;
+      font-size: .75rem;
       color: var(--gold-lt);
       letter-spacing: .08em;
-      min-width: 90px;
+      min-width: 80px;
       text-align: center;
     }
     .viewer {
@@ -183,11 +201,11 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading.hidden { display: none; }
     .thumbnails {
-      display: flex; gap: .5rem;
+      display: flex; gap: .4rem;
       justify-content: center; width: 100%;
     }
     .thumb {
-      width: 48px; border: 2px solid transparent;
+      width: 44px; border: 2px solid transparent;
       border-radius: 4px; cursor: pointer; overflow: hidden;
       transition: opacity .2s, border-color .2s;
     }
@@ -195,55 +213,60 @@
     .thumb.active       { border-color: var(--gold); opacity: 1; }
     .thumb.adjacent     { opacity: .45; }
     .thumb.hidden-thumb { display: none; }
-    @media (max-width: 500px) {
-      .slide-dots { max-width: 45%; }
-      .controls { gap: .5rem; padding: .5rem .9rem; }
-    }
   </style>
 </head>
 <body>
 
-  <div class="slideshow" id="slideshow">
-    <div class="slide-controls">
-      <button class="slide-btn" id="slidePrev">‹</button>
-      <div class="slide-dots" id="dots"></div>
-      <button class="slide-pause" id="pauseBtn">⏸ Pause</button>
-      <button class="slide-btn" id="slideNext">›</button>
-    </div>
-  </div>
+  <div class="main-layout">
 
-  <div class="separator">
-    <div class="sep-line"></div>
-    <div class="sep-label">✦ Compte-rendu de la fête ✦</div>
-    <div class="sep-line"></div>
-  </div>
-
-  <div class="pdf-section">
-    <div class="controls" id="ctrl-top">
-      <button class="btn" data-a="first">«</button>
-      <button class="btn" data-a="prev">‹</button>
-      <span class="page-info" id="pInfo-top">Page 1 / —</span>
-      <button class="btn" data-a="next">›</button>
-      <button class="btn" data-a="last">»</button>
-    </div>
-    <div class="viewer" id="viewer">
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        Chargement du compte-rendu…
+    <!-- COLONNE GAUCHE : DIAPORAMA -->
+    <div class="col-left">
+      <span class="col-title">✦ Album photos ✦</span>
+      <div class="slideshow" id="slideshow">
+        <div class="slide-controls">
+          <button class="slide-btn" id="slidePrev">‹</button>
+          <div class="slide-dots" id="dots"></div>
+          <button class="slide-pause" id="pauseBtn">⏸ Pause</button>
+          <button class="slide-btn" id="slideNext">›</button>
+        </div>
       </div>
-      <canvas id="pdfCanvas"></canvas>
     </div>
-    <div class="controls" id="ctrl-bot">
-      <button class="btn" data-a="first">«</button>
-      <button class="btn" data-a="prev">‹</button>
-      <span class="page-info" id="pInfo-bot">Page 1 / —</span>
-      <button class="btn" data-a="next">›</button>
-      <button class="btn" data-a="last">»</button>
+
+    <!-- COLONNE DROITE : COMPTE-RENDU -->
+    <div class="col-right">
+      <span class="col-title">✦ Compte-rendu de la fête ✦</span>
+      <div class="pdf-section">
+        <div class="controls" id="ctrl-top">
+          <button class="btn" data-a="first">«</button>
+          <button class="btn" data-a="prev">‹</button>
+          <span class="page-info" id="pInfo-top">Page 1 / —</span>
+          <button class="btn" data-a="next">›</button>
+          <button class="btn" data-a="last">»</button>
+        </div>
+        <div class="viewer" id="viewer">
+          <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Chargement…
+          </div>
+          <canvas id="pdfCanvas"></canvas>
+        </div>
+        <div class="controls" id="ctrl-bot">
+          <button class="btn" data-a="first">«</button>
+          <button class="btn" data-a="prev">‹</button>
+          <span class="page-info" id="pInfo-bot">Page 1 / —</span>
+          <button class="btn" data-a="next">›</button>
+          <button class="btn" data-a="last">»</button>
+        </div>
+        <div class="thumbnails" id="thumbs"></div>
+      </div>
     </div>
-    <div class="thumbnails" id="thumbs"></div>
+
   </div>
 
 <script>
+  // ═══════════════════════════════
+  // DIAPORAMA
+  // ═══════════════════════════════
   const PHOTOS = [
     'photos-2023/20230809_093735.jpg',
     'photos-2023/20230813_120039.jpg',
@@ -273,27 +296,50 @@
 
   const shuffled = [...PHOTOS].sort(() => Math.random() - 0.5);
   const ss   = document.getElementById('slideshow');
-  const dots = document.getElementById('dots');
-  let cur = 0, timer = null, paused = false;
+  const dotsEl = document.getElementById('dots');
+  let validPhotos = [], cur = 0, timer = null, paused = false;
 
-  shuffled.forEach((f, i) => {
-    const img = document.createElement('img');
-    img.src = f;
-    img.alt = `Fête 2023 — photo ${i+1}`;
-    if (i === 0) img.classList.add('active');
-    ss.insertBefore(img, ss.querySelector('.slide-controls'));
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => goSlide(i);
-    dots.appendChild(dot);
+  // Charge uniquement les photos qui existent
+  let loaded = 0;
+  shuffled.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
+      validPhotos.push(src);
+      loaded++;
+      if (loaded === shuffled.length) buildSlideshow();
+    };
+    img.onerror = () => {
+      loaded++;
+      if (loaded === shuffled.length) buildSlideshow();
+    };
+    img.src = src;
   });
 
+  function buildSlideshow() {
+    validPhotos.forEach((src, i) => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = `Fête 2023 — photo ${i+1}`;
+      if (i === 0) img.classList.add('active');
+      ss.insertBefore(img, ss.querySelector('.slide-controls'));
+
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goSlide(i);
+      dotsEl.appendChild(dot);
+    });
+    startTimer();
+  }
+
   function goSlide(n) {
-    document.querySelectorAll('.slideshow img')[cur].classList.remove('active');
-    document.querySelectorAll('.dot')[cur].classList.remove('active');
-    cur = (n + shuffled.length) % shuffled.length;
-    document.querySelectorAll('.slideshow img')[cur].classList.add('active');
-    document.querySelectorAll('.dot')[cur].classList.add('active');
+    const imgs = document.querySelectorAll('.slideshow img');
+    const dts  = document.querySelectorAll('.dot');
+    if (!imgs.length) return;
+    imgs[cur].classList.remove('active');
+    dts[cur].classList.remove('active');
+    cur = (n + validPhotos.length) % validPhotos.length;
+    imgs[cur].classList.add('active');
+    dts[cur].classList.add('active');
   }
 
   function startTimer() {
@@ -308,8 +354,10 @@
     this.textContent = paused ? '▶ Play' : '⏸ Pause';
     paused ? clearInterval(timer) : startTimer();
   };
-  startTimer();
 
+  // ═══════════════════════════════
+  // PDF
+  // ═══════════════════════════════
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -345,7 +393,6 @@
     if (!pdfDoc || n < 1 || n > pdfDoc.numPages) return;
     curPage = n;
     renderPage(curPage);
-    window.scrollTo({ top: document.getElementById('viewer').offsetTop - 20, behavior: 'smooth' });
   }
 
   ['ctrl-top','ctrl-bot'].forEach(id => {
