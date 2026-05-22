@@ -128,30 +128,6 @@
       align-items: center;
       gap: .7rem;
     }
-    /* Bouton plein écran */
-    .btn-fullscreen {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      background: none;
-      border: 1.5px solid var(--gold);
-      color: var(--bordeaux);
-      font-family: 'Cinzel', serif;
-      font-size: .7rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: .4rem 1rem;
-      border-radius: 20px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background .15s, color .15s;
-      align-self: flex-end;
-    }
-    .btn-fullscreen:hover {
-      background: var(--gold);
-      color: #fff;
-    }
     .controls {
       display: flex;
       align-items: center;
@@ -246,9 +222,6 @@
     <div class="col-right">
       <span class="col-title">✦ Compte-rendu de la fête ✦</span>
       <div class="pdf-section">
-        <a class="btn-fullscreen" href="compte-rendu-2023.pdf" target="_blank">
-          ↗ Ouvrir en plein écran
-        </a>
         <div class="viewer" id="viewer" onclick="window.open('compte-rendu-2023.pdf','_blank')">
           <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -412,7 +385,10 @@
       const c = document.createElement('canvas');
       wrap.appendChild(c);
       container.appendChild(wrap);
-      wrap.onclick = () => goPage(i);
+      wrap.addEventListener('click', e => {
+        e.stopPropagation();
+        goPage(i);
+      });
       const page = await pdf.getPage(i);
       const vp   = page.getViewport({ scale: 0.15 });
       c.width = vp.width; c.height = vp.height;
