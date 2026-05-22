@@ -128,6 +128,30 @@
       align-items: center;
       gap: .7rem;
     }
+    /* Bouton plein écran */
+    .btn-fullscreen {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: none;
+      border: 1.5px solid var(--gold);
+      color: var(--bordeaux);
+      font-family: 'Cinzel', serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: .4rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+      align-self: flex-end;
+    }
+    .btn-fullscreen:hover {
+      background: var(--gold);
+      color: #fff;
+    }
     .controls {
       display: flex;
       align-items: center;
@@ -168,6 +192,7 @@
       overflow: hidden;
       box-shadow: 0 4px 24px rgba(122,16,32,.12);
       position: relative;
+      cursor: pointer;
     }
     .viewer canvas { display: block; width: 100% !important; height: auto !important; }
     .loading {
@@ -207,7 +232,7 @@
   <div class="main-layout">
 
     <div class="col-left">
-      <span class="col-title">✦ Album photos ✦</span>
+      <span class="col-title">✦ Aperçu en photos ✦</span>
       <div class="slideshow" id="slideshow">
         <div class="slide-controls">
           <button class="slide-btn" id="slidePrev">‹</button>
@@ -221,7 +246,10 @@
     <div class="col-right">
       <span class="col-title">✦ Compte-rendu de la fête ✦</span>
       <div class="pdf-section">
-        <div class="viewer" id="viewer">
+        <a class="btn-fullscreen" href="compte-rendu-2023.pdf" target="_blank">
+          ↗ Ouvrir en plein écran
+        </a>
+        <div class="viewer" id="viewer" onclick="window.open('compte-rendu-2023.pdf','_blank')">
           <div class="loading" id="loading">
             <div class="spinner"></div>
             Chargement…
