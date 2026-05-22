@@ -8,10 +8,10 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bordeaux:    #7a1020;
-      --gold:        #c9a84c;
-      --gold-lt:     #e8d49a;
-      --text:        #1a0a0e;
+      --bordeaux: #7a1020;
+      --gold:     #c9a84c;
+      --gold-lt:  #e8d49a;
+      --text:     #1a0a0e;
     }
     body {
       background: transparent;
@@ -69,7 +69,7 @@
     .table-wrap {
       max-width: 960px;
       margin: 0 auto;
-      overflow-x: auto;
+      overflow-x: hidden;
     }
     table {
       width: 100%;
@@ -121,10 +121,14 @@
       background: rgba(122,16,32,.04);
       border-right: 2px solid rgba(201,168,76,.18);
       white-space: nowrap;
-      width: 80px;
+      width: 70px;
     }
     td.membre { font-weight: 600; color: var(--text); }
     td.membre span.prenom { font-weight: 400; color: #666; margin-left: .3rem; }
+
+    /* Badge statut inline sous le nom sur mobile */
+    .badge-inline { display: none; }
+
     .badge-honoraire {
       display: inline-flex;
       align-items: center;
@@ -155,16 +159,46 @@
       border-radius: 20px;
       white-space: nowrap;
     }
+
+    /* Colonne statut cachée sur mobile */
+    .col-statut { }
+
+    /* ── MOBILE ── */
+    @media (max-width: 560px) {
+      thead th, tbody td { padding: .55rem .6rem; }
+      td.annee { width: 52px; font-size: .78rem; padding: .55rem .4rem; }
+
+      /* Cache la colonne statut */
+      .col-statut, thead th:last-child { display: none; }
+
+      /* Affiche le badge sous le nom */
+      .badge-inline { display: inline-flex; margin-top: .2rem; }
+      td.membre { display: flex; flex-direction: column; align-items: flex-start; }
+      td.membre .nom-prenom { display: block; }
+    }
+
+    tfoot td {
+      border-top: 1.5px solid rgba(201,168,76,.3);
+      padding: .7rem 1rem;
+      font-size: .95rem;
+      color: #555;
+    }
+    td.total-label {
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: .8rem;
+      color: var(--bordeaux);
+      background: rgba(122,16,32,.04);
+      border-right: 2px solid rgba(201,168,76,.18);
+    }
+
     #noResult {
       text-align: center;
       padding: 2rem;
       font-style: italic;
       color: #999;
       display: none;
-    }
-    @media (max-width: 500px) {
-      thead th, tbody td { padding: .55rem .65rem; font-size: .88rem; }
-      td.annee { width: 60px; font-size: .8rem; }
     }
   </style>
 </head>
@@ -191,8 +225,8 @@
         <tbody id="tbody"></tbody>
         <tfoot>
           <tr id="totalRow" style="display:none">
-            <td class="annee" style="font-family:'Cinzel',serif;font-weight:700;font-size:.8rem;color:var(--bordeaux);background:rgba(122,16,32,.04);border-right:2px solid rgba(201,168,76,.18);text-align:center">Total</td>
-            <td colspan="2" id="totalText" style="font-family:'Crimson Text',serif;font-size:.95rem;color:#555;border-top:1.5px solid rgba(201,168,76,.3);padding:.7rem 1rem"></td>
+            <td class="total-label">Total</td>
+            <td colspan="2" id="totalText"></td>
           </tr>
         </tfoot>
       </table>
@@ -220,16 +254,20 @@
   function buildRow(cols, i) {
     const [annee, nom, prenom, honorariat] = cols;
     const isHonoraire = honorariat && honorariat.toLowerCase() !== 'non' && honorariat.trim() !== '';
-    const badge = isHonoraire
+    const badgeHTML = isHonoraire
       ? `<span class="badge-honoraire">★ Honoraire ${honorariat}</span>`
       : `<span class="badge-actif">● Actif</span>`;
+
     const tr = document.createElement('tr');
     tr.style.animationDelay = `${Math.min(i * 15, 400)}ms`;
     tr.dataset.search = `${nom} ${prenom} ${annee}`.toLowerCase();
     tr.innerHTML = `
       <td class="annee">${annee || '—'}</td>
-      <td class="membre">${nom || ''}<span class="prenom">${prenom || ''}</span></td>
-      <td>${badge}</td>`;
+      <td class="membre">
+        <span class="nom-prenom"><strong>${nom || ''}</strong><span class="prenom">${prenom || ''}</span></span>
+        <span class="badge-inline">${badgeHTML}</span>
+      </td>
+      <td class="col-statut">${badgeHTML}</td>`;
     return tr;
   }
 
@@ -239,11 +277,10 @@
     const totalRow   = document.getElementById('totalRow');
     const totalText  = document.getElementById('totalText');
     if (totalRow)  totalRow.style.display = '';
-    if (totalText) totalText.textContent  = allRows.length + ' membres dont ' + honoraires + ' membres honoraires';
+    if (totalText) totalText.textContent  = `${allRows.length} membres dont ${honoraires} membres honoraires`;
     const visible = document.querySelectorAll('#tbody tr:not(.hidden)').length;
-    const total   = allRows.length;
     document.getElementById('count').textContent =
-      visible === total ? `${total} membres` : `${visible} / ${total}`;
+      visible === allRows.length ? `${allRows.length} membres` : `${visible} / ${allRows.length}`;
     document.getElementById('noResult').style.display = visible === 0 ? 'block' : 'none';
   }
 
