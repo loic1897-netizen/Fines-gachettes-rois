@@ -74,6 +74,7 @@
       box-shadow: 0 6px 32px rgba(122,16,32,.13), 4px 4px 0 rgba(201,168,76,.15);
       overflow: hidden;
       position: relative;
+      cursor: pointer;
     }
     canvas { display: block; width: 100% !important; height: auto !important; }
     .loading {
@@ -132,7 +133,6 @@
 </head>
 <body>
 
-  <!-- BARRE HAUTE -->
   <div class="controls-top" id="controls-top">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
@@ -141,8 +141,7 @@
     <button class="btn" data-action="last">»</button>
   </div>
 
-  <!-- VISIONNEUR -->
-  <div class="viewer" id="viewer">
+  <div class="viewer" id="viewer" onclick="window.open('Statuts2020_-_Abbaye_des_Fusiliers_de_Denges.pdf','_blank')">
     <div class="loading" id="loading">
       <div class="spinner"></div>
       Chargement des statuts…
@@ -150,7 +149,6 @@
     <canvas id="pdfCanvas"></canvas>
   </div>
 
-  <!-- BARRE BASSE -->
   <div class="controls-bottom" id="controls-bottom">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
@@ -159,7 +157,6 @@
     <button class="btn" data-action="last">»</button>
   </div>
 
-  <!-- MINIATURES -->
   <div class="thumbnails" id="thumbnails"></div>
 
   <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
@@ -235,7 +232,10 @@
       const c = document.createElement('canvas');
       wrap.appendChild(c);
       container.appendChild(wrap);
-      wrap.addEventListener('click', () => go(parseInt(wrap.dataset.page)));
+      wrap.addEventListener('click', e => {
+        e.stopPropagation();
+        go(parseInt(wrap.dataset.page));
+      });
       const page = await pdf.getPage(i);
       const vp   = page.getViewport({ scale: 0.15 });
       c.width = vp.width; c.height = vp.height;
