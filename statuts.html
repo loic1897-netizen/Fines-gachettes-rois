@@ -20,9 +20,10 @@
       flex-direction: column;
       align-items: center;
       padding: 1rem;
+      padding-bottom: 70px;
       gap: 1rem;
     }
-    .controls {
+    .controls-top {
       display: flex;
       align-items: center;
       gap: .8rem;
@@ -31,6 +32,21 @@
       border-radius: 40px;
       box-shadow: 0 3px 14px rgba(122,16,32,.25);
       border: 1px solid rgba(201,168,76,.3);
+    }
+    .controls-bottom {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      background: var(--bordeaux);
+      padding: .55rem 1.2rem;
+      border-radius: 40px;
+      box-shadow: 0 3px 20px rgba(122,16,32,.35);
+      border: 1px solid rgba(201,168,76,.3);
+      z-index: 100;
     }
     .btn {
       background: none;
@@ -77,6 +93,7 @@
       gap: .8rem;
       color: var(--bordeaux);
       font-style: italic;
+      min-height: 200px;
     }
     .spinner {
       width: 28px; height: 28px;
@@ -115,13 +132,13 @@
     }
     @media (max-width: 500px) {
       .thumb { width: 38px; }
-      .controls { gap: .5rem; padding: .5rem .9rem; }
+      .controls-top, .controls-bottom { gap: .5rem; padding: .5rem .9rem; }
     }
   </style>
 </head>
 <body>
 
-  <div class="controls" id="controls-top">
+  <div class="controls-top" id="controls-top">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
     <span class="page-info" id="pageInfo-top">Page 1 / —</span>
@@ -139,15 +156,15 @@
 
   <div class="thumbnails" id="thumbnails"></div>
 
-  <div class="controls" id="controls-bottom">
+  <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
+
+  <div class="controls-bottom" id="controls-bottom">
     <button class="btn" data-action="first">«</button>
     <button class="btn" data-action="prev">‹</button>
     <span class="page-info" id="pageInfo-bottom">Page 1 / —</span>
     <button class="btn" data-action="next">›</button>
     <button class="btn" data-action="last">»</button>
   </div>
-
-  <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
 
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -187,7 +204,7 @@
     if (!pdfDoc || n < 1 || n > pdfDoc.numPages) return;
     currentPage = n;
     renderPage(currentPage);
-    document.getElementById('viewer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   ['controls-top', 'controls-bottom'].forEach(id => {
@@ -205,13 +222,9 @@
   function updateThumbs() {
     document.querySelectorAll('.thumb').forEach(t => {
       const p = parseInt(t.dataset.page);
-      if (p === currentPage) {
-        t.className = 'thumb active';
-      } else if (p === currentPage - 1 || p === currentPage + 1) {
-        t.className = 'thumb adjacent';
-      } else {
-        t.className = 'thumb hidden-thumb';
-      }
+      if (p === currentPage)                                    { t.className = 'thumb active'; }
+      else if (p === currentPage - 1 || p === currentPage + 1) { t.className = 'thumb adjacent'; }
+      else                                                      { t.className = 'thumb hidden-thumb'; }
     });
   }
 
