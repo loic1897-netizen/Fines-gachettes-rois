@@ -10,10 +10,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bordeaux:    #7a1020;
-      --bordeaux-dk: #4e0a15;
       --gold:        #c9a84c;
       --gold-lt:     #e8d49a;
-      --cream:       #faf6ef;
       --text:        #1a0a0e;
     }
     body {
@@ -26,8 +24,6 @@
       align-items: center;
       gap: 2rem;
     }
-
-    /* ── DIAPORAMA ── */
     .slideshow {
       width: 100%;
       max-width: 860px;
@@ -35,7 +31,7 @@
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 8px 40px rgba(122,16,32,.2), 0 0 0 2px var(--gold);
-      background: #000;
+      background: #111;
       aspect-ratio: 4/3;
     }
     .slideshow img {
@@ -48,8 +44,6 @@
       transition: opacity .9s ease;
     }
     .slideshow img.active { opacity: 1; }
-
-    /* Contrôles diaporama */
     .slide-controls {
       position: absolute;
       bottom: 0; left: 0; right: 0;
@@ -73,7 +67,6 @@
       backdrop-filter: blur(4px);
     }
     .slide-btn:hover { background: rgba(201,168,76,.3); }
-
     .slide-dots {
       display: flex;
       gap: .35rem;
@@ -89,7 +82,6 @@
       transition: background .2s, transform .2s;
     }
     .dot.active { background: var(--gold); transform: scale(1.3); }
-
     .slide-pause {
       background: rgba(255,255,255,.15);
       border: 1px solid rgba(201,168,76,.5);
@@ -104,8 +96,6 @@
       transition: background .15s;
     }
     .slide-pause:hover { background: rgba(201,168,76,.3); }
-
-    /* ── SÉPARATEUR ── */
     .separator {
       display: flex;
       align-items: center;
@@ -126,8 +116,6 @@
       background: rgba(201,168,76,.06);
       white-space: nowrap;
     }
-
-    /* ── VISIONNEUR PDF ── */
     .pdf-section {
       width: 100%;
       max-width: 860px;
@@ -194,8 +182,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading.hidden { display: none; }
-
-    /* Miniatures PDF */
     .thumbnails {
       display: flex; gap: .5rem;
       justify-content: center; width: 100%;
@@ -209,7 +195,6 @@
     .thumb.active       { border-color: var(--gold); opacity: 1; }
     .thumb.adjacent     { opacity: .45; }
     .thumb.hidden-thumb { display: none; }
-
     @media (max-width: 500px) {
       .slide-dots { max-width: 45%; }
       .controls { gap: .5rem; padding: .5rem .9rem; }
@@ -218,9 +203,7 @@
 </head>
 <body>
 
-  <!-- ── DIAPORAMA ── -->
   <div class="slideshow" id="slideshow">
-    <!-- Images injectées par JS -->
     <div class="slide-controls">
       <button class="slide-btn" id="slidePrev">‹</button>
       <div class="slide-dots" id="dots"></div>
@@ -229,14 +212,12 @@
     </div>
   </div>
 
-  <!-- ── SÉPARATEUR ── -->
   <div class="separator">
     <div class="sep-line"></div>
     <div class="sep-label">✦ Compte-rendu de la fête ✦</div>
     <div class="sep-line"></div>
   </div>
 
-  <!-- ── VISIONNEUR PDF ── -->
   <div class="pdf-section">
     <div class="controls" id="ctrl-top">
       <button class="btn" data-a="first">«</button>
@@ -245,7 +226,6 @@
       <button class="btn" data-a="next">›</button>
       <button class="btn" data-a="last">»</button>
     </div>
-
     <div class="viewer" id="viewer">
       <div class="loading" id="loading">
         <div class="spinner"></div>
@@ -253,7 +233,6 @@
       </div>
       <canvas id="pdfCanvas"></canvas>
     </div>
-
     <div class="controls" id="ctrl-bot">
       <button class="btn" data-a="first">«</button>
       <button class="btn" data-a="prev">‹</button>
@@ -261,40 +240,48 @@
       <button class="btn" data-a="next">›</button>
       <button class="btn" data-a="last">»</button>
     </div>
-
     <div class="thumbnails" id="thumbs"></div>
   </div>
 
 <script>
-  // ═══════════════════════════════
-  // DIAPORAMA
-  // ═══════════════════════════════
   const PHOTOS = [
-    '20230809_093735.jpg','20230813_120039.jpg','20230813_145454.jpg',
-    '20230814_174333.jpg','20230814_174400.jpg','20230814_174443.jpg',
-    '8ebb2e7f-6656-44a0-9298-083d78761435.jpg','IMG_3636.jpg',
-    'IMG_5605.jpg','IMG_5607.jpg','IMG_7457.jpg','IMG_7460.jpg',
-    'IMG_9399.jpg','IMG_9401.jpg','IMG_9447.jpg','IMG_9456.jpg',
-    'IMG_9487.jpg','IMG_9495.jpg','IMG_9505.jpg','IMG_9550.jpg',
-    'IMG_9555.jpg','IMG_9562.jpg','IMG_9646.jpg',
-    'd74d45f0-b5ce-4edd-be93-8b856d18e8bb.jpg'
+    'photos-2023/20230809_093735.jpg',
+    'photos-2023/20230813_120039.jpg',
+    'photos-2023/20230813_145454.jpg',
+    'photos-2023/20230814_174333.jpg',
+    'photos-2023/20230814_174400.jpg',
+    'photos-2023/8ebb2e7f-6656-44a0-9298-083d78761435.jpg',
+    'photos-2023/IMG_3636.jpg',
+    'photos-2023/IMG_5605.jpg',
+    'photos-2023/IMG_7456.jpg',
+    'photos-2023/IMG_7457.jpg',
+    'photos-2023/IMG_7460.jpg',
+    'photos-2023/IMG_9399.jpg',
+    'photos-2023/IMG_9401.jpg',
+    'photos-2023/IMG_9447.jpg',
+    'photos-2023/IMG_9456.jpg',
+    'photos-2023/IMG_9487.jpg',
+    'photos-2023/IMG_9495.jpg',
+    'photos-2023/IMG_9505.jpg',
+    'photos-2023/IMG_9550.jpg',
+    'photos-2023/IMG_9555.jpg',
+    'photos-2023/IMG_9562.jpg',
+    'photos-2023/IMG_9574.jpg',
+    'photos-2023/IMG_9646.jpg',
+    'photos-2023/d3894534-242d-4fb7-8258-afe2aa202d7c.jpg'
   ];
 
-  // Mélange aléatoire
   const shuffled = [...PHOTOS].sort(() => Math.random() - 0.5);
-
-  const ss    = document.getElementById('slideshow');
-  const dots  = document.getElementById('dots');
+  const ss   = document.getElementById('slideshow');
+  const dots = document.getElementById('dots');
   let cur = 0, timer = null, paused = false;
 
-  // Créer les images et dots
   shuffled.forEach((f, i) => {
     const img = document.createElement('img');
     img.src = f;
     img.alt = `Fête 2023 — photo ${i+1}`;
     if (i === 0) img.classList.add('active');
     ss.insertBefore(img, ss.querySelector('.slide-controls'));
-
     const dot = document.createElement('div');
     dot.className = 'dot' + (i === 0 ? ' active' : '');
     dot.onclick = () => goSlide(i);
@@ -321,12 +308,8 @@
     this.textContent = paused ? '▶ Play' : '⏸ Pause';
     paused ? clearInterval(timer) : startTimer();
   };
-
   startTimer();
 
-  // ═══════════════════════════════
-  // PDF
-  // ═══════════════════════════════
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -341,9 +324,9 @@
     ['top','bot'].forEach(id => {
       document.getElementById(`pInfo-${id}`).textContent = `Page ${curPage} / ${total}`;
     });
-    document.querySelectorAll('.btn[data-a="first"],[data-a="prev"]')
+    document.querySelectorAll('[data-a="first"],[data-a="prev"]')
       .forEach(b => b.disabled = curPage <= 1);
-    document.querySelectorAll('.btn[data-a="last"],[data-a="next"]')
+    document.querySelectorAll('[data-a="last"],[data-a="next"]')
       .forEach(b => b.disabled = curPage >= total);
     updateThumbs();
   }
@@ -380,9 +363,9 @@
   function updateThumbs() {
     document.querySelectorAll('.thumb').forEach(t => {
       const p = parseInt(t.dataset.page);
-      if (p === curPage)                              t.className = 'thumb active';
-      else if (p === curPage-1 || p === curPage+1)   t.className = 'thumb adjacent';
-      else                                            t.className = 'thumb hidden-thumb';
+      if (p === curPage)                            t.className = 'thumb active';
+      else if (p === curPage-1 || p === curPage+1) t.className = 'thumb adjacent';
+      else                                          t.className = 'thumb hidden-thumb';
     });
   }
 
