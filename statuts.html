@@ -12,22 +12,16 @@
       --bordeaux: #7a1020;
       --gold:     #c9a84c;
       --gold-lt:  #e8d49a;
-      --cream:    #faf6ef;
-      --text:     #1a0a0e;
     }
-
     body {
       background: transparent;
       font-family: 'Crimson Text', Georgia, serif;
-      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 1rem;
       gap: 1rem;
     }
-
-    /* ── CONTRÔLES ── */
     .controls {
       display: flex;
       align-items: center;
@@ -38,7 +32,6 @@
       box-shadow: 0 3px 14px rgba(122,16,32,.25);
       border: 1px solid rgba(201,168,76,.3);
     }
-
     .btn {
       background: none;
       border: 1.5px solid var(--gold);
@@ -53,7 +46,6 @@
     }
     .btn:hover:not(:disabled) { background: var(--gold); color: var(--bordeaux); }
     .btn:disabled { opacity: .3; cursor: default; }
-
     .page-info {
       font-family: 'Cinzel', serif;
       font-size: .8rem;
@@ -63,20 +55,6 @@
       min-width: 90px;
       text-align: center;
     }
-
-    .zoom-btn {
-      background: none;
-      border: none;
-      color: var(--gold);
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 0 .2rem;
-      opacity: .8;
-      transition: opacity .15s;
-    }
-    .zoom-btn:hover { opacity: 1; }
-
-    /* ── CANVAS WRAPPER ── */
     .viewer {
       width: 100%;
       max-width: 780px;
@@ -87,14 +65,7 @@
       overflow: hidden;
       position: relative;
     }
-
-    canvas {
-      display: block;
-      width: 100% !important;
-      height: auto !important;
-    }
-
-    /* ── LOADING ── */
+    canvas { display: block; width: 100% !important; height: auto !important; }
     .loading {
       position: absolute;
       inset: 0;
@@ -116,12 +87,9 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading.hidden { display: none; }
-
-    /* ── MINIATURES ── */
     .thumbnails {
       display: flex;
       gap: .5rem;
-      flex-wrap: wrap;
       justify-content: center;
       max-width: 780px;
       width: 100%;
@@ -131,15 +99,13 @@
       border: 2px solid transparent;
       border-radius: 4px;
       cursor: pointer;
-      opacity: .55;
-      transition: opacity .15s, border-color .15s;
       overflow: hidden;
+      transition: opacity .2s, border-color .2s;
     }
-    .thumb:hover { opacity: .85; }
-    .thumb.active { border-color: var(--gold); opacity: 1; }
     .thumb canvas { display: block; width: 100% !important; height: auto !important; }
-
-    /* ── NOTE ── */
+    .thumb.active       { border-color: var(--gold); opacity: 1; }
+    .thumb.adjacent     { opacity: .45; }
+    .thumb.hidden-thumb { display: none; }
     .note {
       font-size: .8rem;
       font-style: italic;
@@ -147,7 +113,6 @@
       text-align: center;
       max-width: 600px;
     }
-
     @media (max-width: 500px) {
       .thumb { width: 38px; }
       .controls { gap: .5rem; padding: .5rem .9rem; }
@@ -156,19 +121,14 @@
 </head>
 <body>
 
-  <!-- CONTRÔLES -->
-  <div class="controls">
-    <button class="btn" id="first" title="Première page">«</button>
-    <button class="btn" id="prev" title="Page précédente">‹</button>
-    <span class="page-info" id="pageInfo">Page 1 / —</span>
-    <button class="btn" id="next" title="Page suivante">›</button>
-    <button class="btn" id="last" title="Dernière page">»</button>
-    <span style="width:1px;height:20px;background:rgba(201,168,76,.3);margin:0 .3rem"></span>
-    <button class="zoom-btn" id="zoomOut" title="Zoom arrière">−</button>
-    <button class="zoom-btn" id="zoomIn" title="Zoom avant">+</button>
+  <div class="controls" id="controls-top">
+    <button class="btn" data-action="first">«</button>
+    <button class="btn" data-action="prev">‹</button>
+    <span class="page-info" id="pageInfo-top">Page 1 / —</span>
+    <button class="btn" data-action="next">›</button>
+    <button class="btn" data-action="last">»</button>
   </div>
 
-  <!-- VISIONNEUR -->
   <div class="viewer" id="viewer">
     <div class="loading" id="loading">
       <div class="spinner"></div>
@@ -177,8 +137,15 @@
     <canvas id="pdfCanvas"></canvas>
   </div>
 
-  <!-- MINIATURES -->
   <div class="thumbnails" id="thumbnails"></div>
+
+  <div class="controls" id="controls-bottom">
+    <button class="btn" data-action="first">«</button>
+    <button class="btn" data-action="prev">‹</button>
+    <span class="page-info" id="pageInfo-bottom">Page 1 / —</span>
+    <button class="btn" data-action="next">›</button>
+    <button class="btn" data-action="last">»</button>
+  </div>
 
   <p class="note">⚠️ En cas de divergence, seule la version imprimée officielle remise à chaque membre fait foi.</p>
 
@@ -186,89 +153,93 @@
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // ← Chemin vers le PDF (dans le même dossier GitHub)
   const PDF_URL = 'Statuts2020_-_Abbaye_des_Fusiliers_de_Denges.pdf';
 
-  let pdfDoc = null, currentPage = 1, scale = 1.5;
-  const canvas  = document.getElementById('pdfCanvas');
-  const ctx     = canvas.getContext('2d');
-  const loading = document.getElementById('loading');
-  const info    = document.getElementById('pageInfo');
+  let pdfDoc = null, currentPage = 1;
+  const scale = 1.5;
+  const canvas = document.getElementById('pdfCanvas');
+  const ctx    = canvas.getContext('2d');
 
-  async function renderPage(n) {
-    loading.classList.remove('hidden');
-    const page    = await pdfDoc.getPage(n);
-    const viewport = page.getViewport({ scale });
-    canvas.width  = viewport.width;
-    canvas.height = viewport.height;
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    loading.classList.add('hidden');
-    info.textContent = `Page ${n} / ${pdfDoc.numPages}`;
-    updateButtons();
-    highlightThumb(n);
+  function updateUI() {
+    const total = pdfDoc.numPages;
+    ['top', 'bottom'].forEach(id => {
+      document.getElementById(`pageInfo-${id}`).textContent = `Page ${currentPage} / ${total}`;
+    });
+    document.querySelectorAll('.btn[data-action="first"], .btn[data-action="prev"]')
+      .forEach(b => b.disabled = currentPage <= 1);
+    document.querySelectorAll('.btn[data-action="last"], .btn[data-action="next"]')
+      .forEach(b => b.disabled = currentPage >= total);
+    updateThumbs();
   }
 
-  function updateButtons() {
-    document.getElementById('prev').disabled  = currentPage <= 1;
-    document.getElementById('first').disabled = currentPage <= 1;
-    document.getElementById('next').disabled  = currentPage >= pdfDoc.numPages;
-    document.getElementById('last').disabled  = currentPage >= pdfDoc.numPages;
+  async function renderPage(n) {
+    document.getElementById('loading').classList.remove('hidden');
+    const page     = await pdfDoc.getPage(n);
+    const viewport = page.getViewport({ scale });
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    document.getElementById('loading').classList.add('hidden');
+    updateUI();
   }
 
   function go(n) {
-    if (n < 1 || n > pdfDoc.numPages) return;
+    if (!pdfDoc || n < 1 || n > pdfDoc.numPages) return;
     currentPage = n;
     renderPage(currentPage);
+    document.getElementById('viewer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  document.getElementById('first').onclick = () => go(1);
-  document.getElementById('prev').onclick  = () => go(currentPage - 1);
-  document.getElementById('next').onclick  = () => go(currentPage + 1);
-  document.getElementById('last').onclick  = () => go(pdfDoc.numPages);
+  ['controls-top', 'controls-bottom'].forEach(id => {
+    document.getElementById(id).addEventListener('click', e => {
+      const btn = e.target.closest('.btn');
+      if (!btn) return;
+      const a = btn.dataset.action;
+      if (a === 'first') go(1);
+      if (a === 'prev')  go(currentPage - 1);
+      if (a === 'next')  go(currentPage + 1);
+      if (a === 'last')  go(pdfDoc.numPages);
+    });
+  });
 
-  document.getElementById('zoomIn').onclick = () => {
-    if (scale >= 2.5) return;
-    scale = Math.min(scale + 0.25, 2.5);
-    renderPage(currentPage);
-  };
-  document.getElementById('zoomOut').onclick = () => {
-    if (scale <= 0.75) return;
-    scale = Math.max(scale - 0.25, 0.75);
-    renderPage(currentPage);
-  };
+  function updateThumbs() {
+    document.querySelectorAll('.thumb').forEach(t => {
+      const p = parseInt(t.dataset.page);
+      if (p === currentPage) {
+        t.className = 'thumb active';
+      } else if (p === currentPage - 1 || p === currentPage + 1) {
+        t.className = 'thumb adjacent';
+      } else {
+        t.className = 'thumb hidden-thumb';
+      }
+    });
+  }
 
-  // Miniatures
   async function buildThumbs(pdf) {
     const container = document.getElementById('thumbnails');
     for (let i = 1; i <= pdf.numPages; i++) {
       const wrap = document.createElement('div');
-      wrap.className = 'thumb' + (i === 1 ? ' active' : '');
+      wrap.className = 'thumb hidden-thumb';
       wrap.dataset.page = i;
       const c = document.createElement('canvas');
       wrap.appendChild(c);
       container.appendChild(wrap);
-      wrap.onclick = () => go(parseInt(wrap.dataset.page));
-
+      wrap.addEventListener('click', () => go(parseInt(wrap.dataset.page)));
       const page = await pdf.getPage(i);
-      const vp = page.getViewport({ scale: 0.15 });
+      const vp   = page.getViewport({ scale: 0.15 });
       c.width = vp.width; c.height = vp.height;
       page.render({ canvasContext: c.getContext('2d'), viewport: vp });
     }
+    updateThumbs();
   }
 
-  function highlightThumb(n) {
-    document.querySelectorAll('.thumb').forEach(t => {
-      t.classList.toggle('active', parseInt(t.dataset.page) === n);
-    });
-  }
-
-  // Chargement
   pdfjsLib.getDocument(PDF_URL).promise.then(pdf => {
     pdfDoc = pdf;
     renderPage(1);
     buildThumbs(pdf);
   }).catch(() => {
-    loading.innerHTML = '<p style="color:var(--bordeaux);padding:2rem">⚠️ Impossible de charger le PDF.</p>';
+    document.getElementById('loading').innerHTML =
+      '<p style="color:#7a1020;padding:2rem">⚠️ Impossible de charger le PDF.</p>';
   });
 </script>
 </body>
